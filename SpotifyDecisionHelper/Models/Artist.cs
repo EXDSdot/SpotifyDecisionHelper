@@ -6,10 +6,7 @@ namespace SpotifyDecisionHelper.Models
 
         public List<Track> Tracks { get; }
 
-        public static Artist operator +(Artist a1, Artist a2)
-        {
-            return a2;
-        }
+        
 
         public Artist(string name, Track track)
         {
