@@ -23,10 +23,10 @@ namespace SpotifyDecisionHelper.Models
             Name = name;
         }*/
 
-        public Track(string name)
+        public Track(string name, string artistName)
         {
             Name = name;
-            ArtistName = "Blank";
+            ArtistName = artistName;
         }
     }
 }

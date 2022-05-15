@@ -84,7 +84,7 @@ public class HomeController : Controller
             {
 
         //_curr = new Artist(track.Track.Artists[0].Name);
-                db.Tracks.Add(new Track(track.Track.Name));
+                db.Tracks.Add(new Track(track.Track.Name, track.Track.Artists[0].Name));
                 // DbSaveChanges?
 
             }
@@ -95,7 +95,7 @@ public class HomeController : Controller
                 var Tracks = db.Tracks.ToList();
                 foreach (var track in Tracks)
                 {
-                    sw.WriteLine(track.Name + " "+ " --- ");
+                    sw.WriteLine(track.Name + " "+ track.ArtistName);
                 }
             }
         }
