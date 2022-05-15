@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SpotifyAPI.Web;
 using SpotifyDecisionHelper.Models;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
+using SpotifyDecisionHelper.Data;
 
 namespace SpotifyDecisionHelper.Controllers;
 
@@ -66,13 +68,40 @@ public class HomeController : Controller
     {
         var user = await spotify.UserProfile.Current();
         var tracks = await spotify.Library.GetTracks();
-        using(StreamWriter sw = new StreamWriter(user.Id+".txt"))
+        /*using (StreamWriter sw = new StreamWriter(user.Id + ".txt"))
         {
             await foreach (var track in spotify.Paginate(tracks))
             {
-                sw.WriteLine(track.Track.Artists[0].Name+" - "+track.Track.Album.Name+" - "+track.Track.Name);
+                sw.WriteLine(track.Track.Artists[0].Name + " - " + track.Track.Album.Name + " - " + track.Track.Name);
+            }
+        }*/
+
+        using (ApplicationContext db = new ApplicationContext())
+        {
+            Track curr;
+            Artist _curr; // TODO: Better naming
+            await foreach (var track in spotify.Paginate(tracks))
+            {
+                _curr = new Artist(track.Track.Artists[0].Name);
+                curr = new Track(_curr, track.Track.Name);
+                db.Tracks.Add(curr);
+                // DbSaveChanges?
+
+            }
+
+            db.SaveChanges(); // SaveChanges vs SaveChanges Async ?
+            using (StreamWriter sw = new StreamWriter(user.Id + ".txt"))
+            {
+                var Tracks = db.Tracks.ToList();
+                foreach (var track in Tracks)
+                {
+                    //sw.WriteLine(track.Name + " " + track.Artist.Name + "\n");
+                }
             }
         }
+
+       
+        
 
     }
     
