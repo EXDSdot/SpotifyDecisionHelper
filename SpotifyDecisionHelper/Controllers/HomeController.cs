@@ -95,7 +95,7 @@ public class HomeController : Controller
                 var Tracks = db.Tracks.ToList();
                 foreach (var track in Tracks)
                 {
-                    sw.WriteLine(track.Name + " "+ track.ArtistName);
+                    sw.WriteLine(track.Name + " " + track.Id + " "+ track.ArtistName);
                 }
             }
         }

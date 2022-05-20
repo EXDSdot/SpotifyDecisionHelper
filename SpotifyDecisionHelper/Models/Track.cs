@@ -5,9 +5,15 @@ namespace SpotifyDecisionHelper.Models
 
     public class Track
     {
+        
         [Key] public string Name { set; get; }
         [Required]
         public string ArtistName { set; get; }
+
+        private static int curr_id = 0;
+        [Required] public int Id;
+
+        [Required] public int ArtistId;
         //public Album Album { set; get; }
         //public Artist Artist { set; get; }
 
@@ -15,6 +21,7 @@ namespace SpotifyDecisionHelper.Models
         {
             Name = name;
             Artist = artist;
+            this.Id = curr_id++;
         }*/
 
         /*public Track(string artistName, string name)
@@ -27,6 +34,7 @@ namespace SpotifyDecisionHelper.Models
         {
             Name = name;
             ArtistName = artistName;
+            this.Id = curr_id++;
         }
     }
 }

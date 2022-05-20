@@ -12,7 +12,7 @@ namespace SpotifyDecisionHelper.Data
 
         public  ApplicationContext()
         {
-            Database.EnsureDeleted();
+            Database.EnsureDeleted();  // Make it save changes
             Database.EnsureCreated();
         }
 
