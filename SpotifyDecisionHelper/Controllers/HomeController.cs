@@ -78,13 +78,16 @@ public class HomeController : Controller
 
         using (ApplicationContext db = new ApplicationContext())
         {
-            //Track curr;
-            // Artist _curr; // TODO: Better naming
+            Track curr;
+            Artist _curr; // TODO: Better naming
             await foreach (var track in spotify.Paginate(tracks))
             {
-
-        //_curr = new Artist(track.Track.Artists[0].Name);
-                db.Tracks.Add(new Track(track.Track.Name, track.Track.Artists[0].Name));
+                
+                _curr = new Artist(track.Track.Artists[0].Name);
+                curr = new Track(_curr, track.Track.Name);
+                _curr.AddTrack(curr);
+                db.Tracks.Add(curr);
+                db.Artists.Add(_curr);
                 // DbSaveChanges?
 
             }
@@ -95,8 +98,9 @@ public class HomeController : Controller
                 var Tracks = db.Tracks.ToList();
                 foreach (var track in Tracks)
                 {
-                    sw.WriteLine(track.Name + " " + track.Id + " "+ track.ArtistName);
-                }
+                    //sw.WriteLine(track.Name + " " + track.Id + " "+ track.ArtistName);
+                    sw.WriteLine(track.Name + " " + track.TrackId + " " + track.Artist.Name + " " + track.Artist.Id) ;
+                } 
             }
         }
 

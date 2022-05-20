@@ -6,23 +6,22 @@ namespace SpotifyDecisionHelper.Models
     public class Track
     {
         
-        [Key] public string Name { set; get; }
-        [Required]
-        public string ArtistName { set; get; }
+        [Required] public string? Name { set; get; }
+        public string? ArtistName { set; get; }
 
-        private static int curr_id = 0;
-        [Required] public int Id;
+        private static int? curr_id = 0;
+        [Key] public int? TrackId { get; set; }
 
-        [Required] public int ArtistId;
+        public int? ArtistId;
         //public Album Album { set; get; }
-        //public Artist Artist { set; get; }
+        public Artist Artist { set; get; }
 
-        /*public Track(Artist artist, string name)
+        public Track(Artist artist, string name)
         {
             Name = name;
             Artist = artist;
-            this.Id = curr_id++;
-        }*/
+            this.TrackId = curr_id++;
+        }
 
         /*public Track(string artistName, string name)
         {
@@ -34,7 +33,7 @@ namespace SpotifyDecisionHelper.Models
         {
             Name = name;
             ArtistName = artistName;
-            this.Id = curr_id++;
+            this.TrackId = curr_id++;
         }
     }
 }
