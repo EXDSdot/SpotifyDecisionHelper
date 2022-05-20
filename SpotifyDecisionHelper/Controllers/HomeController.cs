@@ -11,7 +11,7 @@ namespace SpotifyDecisionHelper.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private SpotifyClient spotify;
+    private SpotifyClient? _spotify;
     
     public HomeController(ILogger<HomeController> logger)
     {
@@ -30,6 +30,8 @@ public class HomeController : Controller
     
     public IActionResult Auth()
     {
+        if (_spotify != null) return Redirect("https://localhost:7142/");
+        
         var builder = WebApplication.CreateBuilder();
         var loginRequest = new LoginRequest(
             new Uri("https://localhost:7142/Home/Callback"),
@@ -57,7 +59,7 @@ public class HomeController : Controller
             
         );
         response.Wait();
-        spotify = new SpotifyClient(response.Result.AccessToken);
+        _spotify = new SpotifyClient(response.Result.AccessToken);
         
         LogLibrary();
         
@@ -66,13 +68,21 @@ public class HomeController : Controller
 
     public async void LogLibrary()
     {
-        var user = await spotify.UserProfile.Current();
-        var tracks = await spotify.Library.GetTracks();
+        if (_spotify == null) return;
+        
+        var user = await _spotify.UserProfile.Current();
+        var tracks = await _spotify.Library.GetTracks();
         /*using (StreamWriter sw = new StreamWriter(user.Id + ".txt"))
+        
+        var user = await _spotify.UserProfile.Current();
+        var tracks = await _spotify.Library.GetTracks();
+        using (StreamWriter sw = new StreamWriter(user.Id + ".txt"))
         {
-            await foreach (var track in spotify.Paginate(tracks))
+            await foreach (var track in _spotify.Paginate(tracks))
             {
                 sw.WriteLine(track.Track.Artists[0].Name + " - " + track.Track.Album.Name + " - " + track.Track.Name);
+                sw.WriteLine(track.Track.Artists[0].Name + " - " + track.Track.Album.Name + " - " +
+                             track.Track.Name + " - " + track.Track.Popularity);
             }
         }*/
 
@@ -80,10 +90,10 @@ public class HomeController : Controller
         {
             //Track curr;
             // Artist _curr; // TODO: Better naming
-            await foreach (var track in spotify.Paginate(tracks))
+            await foreach (var track in _spotify.Paginate(tracks))
             {
 
-        //_curr = new Artist(track.Track.Artists[0].Name);
+                //_curr = new Artist(track.Track.Artists[0].Name);
                 db.Tracks.Add(new Track(track.Track.Name, track.Track.Artists[0].Name));
                 // DbSaveChanges?
 
@@ -99,10 +109,6 @@ public class HomeController : Controller
                 }
             }
         }
-
-       
-        
-
     }
     
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
