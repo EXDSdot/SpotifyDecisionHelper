@@ -1,7 +1,22 @@
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using SpotifyDecisionHelper.DB;
+using SpotifyDecisionHelper.DBLogic.Albums;
+using SpotifyDecisionHelper.DBLogic.Artists;
+using SpotifyDecisionHelper.DBLogic.Tracks;
+
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+services.AddControllersWithViews();
+
+// Add Database Context
+var connectionString = builder.Configuration.GetConnectionString("DbConnection");
+services.AddDbContext<ApplicationContext>(param => param.UseSqlServer(connectionString));
+services.AddScoped<IArtistsManager, ArtistsManager>();
+services.AddScoped<IAlbumsManager, AlbumsManager>();
+services.AddScoped<ITracksManager, TracksManager>();
 
 var app = builder.Build();
 

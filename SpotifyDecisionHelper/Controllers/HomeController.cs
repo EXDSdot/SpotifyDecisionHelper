@@ -2,20 +2,26 @@
 using Microsoft.AspNetCore.Mvc;
 using SpotifyAPI.Web;
 using SpotifyDecisionHelper.Models;
-using System.IO;
-using Microsoft.EntityFrameworkCore;
-using SpotifyDecisionHelper.Data;
+using SpotifyDecisionHelper.DBLogic.Albums;
+using SpotifyDecisionHelper.DBLogic.Artists;
+using SpotifyDecisionHelper.DBLogic.Tracks;
 
 namespace SpotifyDecisionHelper.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IArtistsManager _artistsManager;
+    private readonly IAlbumsManager _albumsManager;
+    private readonly ITracksManager _tracksManager;
     private SpotifyClient? _spotify;
     
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IArtistsManager artistsManager, IAlbumsManager albumsManager, ITracksManager tracksManager)
     {
         _logger = logger;
+        _artistsManager = artistsManager;
+        _albumsManager = albumsManager;
+        _tracksManager = tracksManager;
     }
 
     public IActionResult Index()
@@ -46,7 +52,7 @@ public class HomeController : Controller
         return Redirect(uri.ToString());
     }
     
-    public IActionResult Callback([FromQuery] string code)
+    public async Task<IActionResult> Callback([FromQuery] string code)
     {   
         var builder = WebApplication.CreateBuilder();
         
@@ -61,53 +67,46 @@ public class HomeController : Controller
         response.Wait();
         _spotify = new SpotifyClient(response.Result.AccessToken);
         
-        LogLibrary();
+        await LogLibrary();
         
         return Redirect("https://localhost:7142/");
     }
 
-    public async void LogLibrary()
+    public async Task LogLibrary()
     {
         if (_spotify == null) return;
-        
-        var user = await _spotify.UserProfile.Current();
+
+        var userId = (await _spotify.UserProfile.Current()).Id;
         var tracks = await _spotify.Library.GetTracks();
-        /*using (StreamWriter sw = new StreamWriter(user.Id + ".txt"))
         
-        var user = await _spotify.UserProfile.Current();
-        var tracks = await _spotify.Library.GetTracks();
-        using (StreamWriter sw = new StreamWriter(user.Id + ".txt"))
+        await foreach (var track in _spotify.Paginate(tracks))
         {
-            await foreach (var track in _spotify.Paginate(tracks))
+            var fullTrack = track.Track;
+            Console.WriteLine(fullTrack.Artists[0].Name+1);
+            await _artistsManager.FindOrCreate(new CreateArtistRequest
             {
-                sw.WriteLine(track.Track.Artists[0].Name + " - " + track.Track.Album.Name + " - " + track.Track.Name);
-                sw.WriteLine(track.Track.Artists[0].Name + " - " + track.Track.Album.Name + " - " +
-                             track.Track.Name + " - " + track.Track.Popularity);
-            }
-        }*/
-
-        using (ApplicationContext db = new ApplicationContext())
-        {
-            //Track curr;
-            // Artist _curr; // TODO: Better naming
-            await foreach (var track in _spotify.Paginate(tracks))
+                UserId = userId, 
+                ArtistId = fullTrack.Artists[0].Id,
+                Name = fullTrack.Artists[0].Name,
+                Rating = 0
+            });
+            await _albumsManager.FindOrCreate(new CreateAlbumRequest()
             {
-
-                //_curr = new Artist(track.Track.Artists[0].Name);
-                db.Tracks.Add(new Track(track.Track.Name, track.Track.Artists[0].Name));
-                // DbSaveChanges?
-
-            }
-
-            db.SaveChanges(); // SaveChanges vs SaveChanges Async ?
-            using (StreamWriter sw = new StreamWriter(user.Id + ".txt"))
+                UserId = userId, 
+                AlbumId = fullTrack.Album.Id,
+                Name = fullTrack.Album.Name,
+                Rating = 0,
+                ArtistId = fullTrack.Artists[0].Id,
+            });
+            await _tracksManager.FindOrCreate(new CreateTrackRequest()
             {
-                var Tracks = db.Tracks.ToList();
-                foreach (var track in Tracks)
-                {
-                    sw.WriteLine(track.Name + " " + track.Id + " "+ track.ArtistName);
-                }
-            }
+                UserId = userId, 
+                TrackId = fullTrack.Id,
+                Name = fullTrack.Name,
+                Rating = 0,
+                AlbumId = fullTrack.Album.Id
+            });
+            
         }
     }
     
