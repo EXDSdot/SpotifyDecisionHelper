@@ -18,10 +18,7 @@ public class ArtistsManager : IArtistsManager
 
     public async Task<Artist> FindOrCreate(CreateArtistRequest request)
     {
-        Console.WriteLine(_context.ContextId);
-        Console.WriteLine(request.Name);
         var artist = await _context.Artists.FirstOrDefaultAsync(a => a.UserId == request.UserId && a.ArtistId == request.ArtistId);
-        Console.WriteLine(request.Name);
 
         if (artist != null) return artist;
         
@@ -32,14 +29,10 @@ public class ArtistsManager : IArtistsManager
             Name = request.Name,
             Rating = request.Rating
         };
-        Console.WriteLine(request.Name+4);
 
         _context.Artists.Add(artist);
-        Console.WriteLine(request.Name+5);
 
         await _context.SaveChangesAsync();
-        Console.WriteLine(request.Name+6);
-
         return artist;
     }
 

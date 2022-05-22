@@ -82,7 +82,6 @@ public class HomeController : Controller
         await foreach (var track in _spotify.Paginate(tracks))
         {
             var fullTrack = track.Track;
-            Console.WriteLine(fullTrack.Artists[0].Name+1);
             await _artistsManager.FindOrCreate(new CreateArtistRequest
             {
                 UserId = userId, 
