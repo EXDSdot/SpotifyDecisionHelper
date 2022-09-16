@@ -5,6 +5,7 @@ namespace SpotifyDecisionHelper.DB.Entities
     public class Album
     {
         public string UserId { get; set; }
+        [Key]
         public string AlbumId { get; set; }
         
         public string Name { get; set; }
