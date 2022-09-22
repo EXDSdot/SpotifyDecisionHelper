@@ -5,8 +5,12 @@ namespace SpotifyDecisionHelper.DB.Models;
 public class Match
 {
     public string UserId { get; init; }
-    public string TrackId1 { get; init; }
-    public string TrackId2 { get; init; }
-    
+    public int MatchId { get; init; }
+    public ICollection<Track> Tracks { get; init; }
+
     public int Result { get; set; }
+    
+    public int BracketId { get; init; }
+    public Bracket Bracket { get; set; }
+    
 }

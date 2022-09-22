@@ -11,4 +11,6 @@ public class Track
         
     public string AlbumId { get; init; }
     public Album Album { get; set; }
+    
+    public ICollection<Match> Matches { get; set; }
 }

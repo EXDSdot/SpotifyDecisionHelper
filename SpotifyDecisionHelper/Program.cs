@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using SpotifyDecisionHelper.DB;
 using SpotifyDecisionHelper.DBLogic.Albums;
 using SpotifyDecisionHelper.DBLogic.Artists;
+using SpotifyDecisionHelper.DBLogic.Brackets;
+using SpotifyDecisionHelper.DBLogic.Matches;
 using SpotifyDecisionHelper.DBLogic.Tracks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,8 @@ services.AddDbContext<ApplicationContext>(param => param.UseSqlServer(connection
 services.AddScoped<IArtistsManager, ArtistsManager>();
 services.AddScoped<IAlbumsManager, AlbumsManager>();
 services.AddScoped<ITracksManager, TracksManager>();
+services.AddScoped<IMatchesManager, MatchesManager>();
+services.AddScoped<IBracketsManager, BracketsManager>();
 
 var app = builder.Build();
 

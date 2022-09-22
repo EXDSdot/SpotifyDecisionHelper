@@ -14,17 +14,17 @@ public class AlbumsManager : IAlbumsManager
 
     public async Task Add(string userId, string albumId, string artistId)
     {
-        if (await _context.Albums.FindAsync(userId, albumId) == null)
+        if (await _context.Albums.FindAsync(userId, albumId) != null)
+            return;
+        
+        var album = new Album
         {
-            var album = new Album
-            {
-                UserId = userId,
-                AlbumId = albumId,
-                ArtistId = artistId,
-            };
-            _context.Albums.Add(album);
-            await _context.SaveChangesAsync();
-        }
+            UserId = userId,
+            AlbumId = albumId,
+            ArtistId = artistId,
+        };
+        _context.Albums.Add(album);
+        await _context.SaveChangesAsync();
     }
 
     public async Task Remove(string userId, string albumId)

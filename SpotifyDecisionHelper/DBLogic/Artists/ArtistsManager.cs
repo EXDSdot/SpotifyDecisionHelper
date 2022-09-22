@@ -14,16 +14,16 @@ public class ArtistsManager : IArtistsManager
     
     public async Task Add(string userId, string artistId)
     {
-        if (await _context.Artists.FindAsync(userId, artistId) == null)
+        if (await _context.Artists.FindAsync(userId, artistId) != null)
+            return;
+        
+        var artist = new Artist
         {
-            var artist = new Artist
-            {
-                UserId = userId,
-                ArtistId = artistId,
-            };
-            _context.Artists.Add(artist);
-            await _context.SaveChangesAsync();
-        }
+            UserId = userId, 
+            ArtistId = artistId,
+        };
+        _context.Artists.Add(artist);
+        await _context.SaveChangesAsync();
     }
 
     public async Task Remove(string userId, string artistId)
