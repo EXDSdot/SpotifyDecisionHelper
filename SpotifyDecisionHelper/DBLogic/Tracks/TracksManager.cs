@@ -39,10 +39,12 @@ public class TracksManager : ITracksManager
 
     public bool IsMatched(string userId, int bracketId, string trackId)
     {
-        return _context.Tracks.FirstOrDefault(t => t.Matches.Any(m => m.UserId == userId && m.BracketId == bracketId)) != null;
+        return _context.Tracks.FirstOrDefault(t => t.UserId == userId && t.TrackId == trackId &&
+            t.Matches.Any(m => m.UserId == userId && m.BracketId == bracketId)) != null;
     }
     public List<Track> GetUnmatched(string userId, int bracketId)
     {
-        return _context.Tracks.Where(t => t.Matches.All(m => m.BracketId != bracketId)).ToList();
+        return _context.Tracks.Where(t => t.UserId == userId &&
+                                          t.Matches.All(m => m.BracketId != bracketId)).ToList();
     }
 }

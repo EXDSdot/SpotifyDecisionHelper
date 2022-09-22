@@ -48,7 +48,10 @@ public class BracketsManager : IBracketsManager
             var eligible = tracks2.FirstOrDefault(track2 => !_matchesManager.DoesExist(userId, track1, track2)
                                                      && !_tracksManager.IsMatched(userId, bracket.BracketId, track2.TrackId));
             if (eligible != null)
+            {
+                tracks2.Remove(eligible);
                 await _matchesManager.AddMatch(userId, bracket.BracketId, track1, eligible);
+            }
         }
 
         foreach (var track in _tracksManager.GetUnmatched(userId, bracket.BracketId))
