@@ -45,12 +45,10 @@ public class BracketsManager : IBracketsManager
         
         foreach (var track1 in tracks1)
         {
-            foreach (var track2 in tracks2.Where(track2 => 
-                         !_matchesManager.DoesExist(userId, track1, track2)
-                         && !_tracksManager.IsMatched(userId, bracket.BracketId, track1.TrackId)))
-            {
-                await _matchesManager.AddMatch(userId, bracket.BracketId, track1, track2);
-            }
+            var eligible = tracks2.FirstOrDefault(track2 => !_matchesManager.DoesExist(userId, track1, track2)
+                                                     && !_tracksManager.IsMatched(userId, bracket.BracketId, track2.TrackId));
+            if (eligible != null)
+                await _matchesManager.AddMatch(userId, bracket.BracketId, track1, eligible);
         }
 
         foreach (var track in _tracksManager.GetUnmatched(userId, bracket.BracketId))
