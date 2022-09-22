@@ -1,5 +1,7 @@
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 using Microsoft.EntityFrameworkCore;
-using SpotifyDecisionHelper.DB.Entities;
+using SpotifyDecisionHelper.DB.Models;
 
 namespace SpotifyDecisionHelper.DB
 {
@@ -7,7 +9,7 @@ namespace SpotifyDecisionHelper.DB
     {
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -18,6 +20,8 @@ namespace SpotifyDecisionHelper.DB
                 .HasKey(a => new { a.UserId,a.AlbumId });
             modelBuilder.Entity<Track>()
                 .HasKey(a => new { a.UserId,a.TrackId });
+            modelBuilder.Entity<Match>()
+                .HasKey(a => new { a.UserId,a.TrackId1, a.TrackId2 });
             
             modelBuilder.Entity<Album>()
                 .HasOne(a => a.Artist)
@@ -32,5 +36,6 @@ namespace SpotifyDecisionHelper.DB
         public DbSet<Track> Tracks { get; set; }
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Album> Albums { get; set; }
+        public DbSet<Album> Matches { get; set; }
     }
 }

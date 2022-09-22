@@ -1,7 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using SpotifyDecisionHelper.DB;
-using SpotifyDecisionHelper.DB.Entities;
-using SpotifyDecisionHelper.Models;
+using SpotifyDecisionHelper.DB.Models;
 
 namespace SpotifyDecisionHelper.DBLogic.Artists;
 
@@ -13,37 +11,28 @@ public class ArtistsManager : IArtistsManager
     {
         _context = context;
     }
-
-    public async Task<IList<Artist>> GetAll() => await _context.Artists.ToListAsync();
-
-    public async Task<Artist> FindOrCreate(CreateArtistRequest request)
+    
+    public async Task Add(string userId, string artistId)
     {
-        var artist = await _context.Artists.FirstOrDefaultAsync(a => a.UserId == request.UserId && a.ArtistId == request.ArtistId);
-
-        if (artist != null) return artist;
-        
-        artist = new Artist
+        if (await _context.Artists.FindAsync(userId, artistId) == null)
         {
-            UserId = request.UserId,
-            ArtistId = request.ArtistId,
-            Name = request.Name,
-            Rating = request.Rating
-        };
-
-        _context.Artists.Add(artist);
-
-        await _context.SaveChangesAsync();
-        return artist;
+            var artist = new Artist
+            {
+                UserId = userId,
+                ArtistId = artistId,
+            };
+            _context.Artists.Add(artist);
+            await _context.SaveChangesAsync();
+        }
     }
 
-    public async Task Delete(string userId, string artistId)
+    public async Task Remove(string userId, string artistId)
     {
         var artist = _context.Artists.FirstOrDefault(g => g.ArtistId == artistId && g.UserId == userId);
         
         if (artist != null)
         {
             _context.Artists.Remove(artist);
-            
             await _context.SaveChangesAsync();
         }
     }

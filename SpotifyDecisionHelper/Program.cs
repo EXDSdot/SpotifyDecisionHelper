@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using SpotifyDecisionHelper.DB;
 using SpotifyDecisionHelper.DBLogic.Albums;
@@ -12,7 +11,7 @@ var services = builder.Services;
 services.AddControllersWithViews();
 
 // Add Database Context
-var connectionString = builder.Configuration.GetConnectionString("DbConnection");
+var connectionString = builder.Configuration.GetConnectionString("DbConnection") ?? throw new InvalidOperationException();
 services.AddDbContext<ApplicationContext>(param => param.UseSqlServer(connectionString));
 services.AddScoped<IArtistsManager, ArtistsManager>();
 services.AddScoped<IAlbumsManager, AlbumsManager>();

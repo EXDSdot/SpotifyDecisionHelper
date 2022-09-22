@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using SpotifyDecisionHelper.DB.Entities;
+/*using Microsoft.AspNetCore.Mvc;
+using SpotifyDecisionHelper.DB.Models;
 using SpotifyDecisionHelper.DBLogic.Artists;
-using SpotifyDecisionHelper.Models;
 
 namespace SpotifyDecisionHelper.Controllers;
 
@@ -26,4 +25,4 @@ public class ArtistsController : Controller
     [HttpDelete]
     [Route("{userId}/{artistId}")]
     public Task Delete(string userId, string artistId) => _manager.Delete(userId, artistId);
-}
+}*/

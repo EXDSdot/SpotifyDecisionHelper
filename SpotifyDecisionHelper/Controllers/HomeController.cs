@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SpotifyAPI.Web;
-using SpotifyDecisionHelper.Models;
 using SpotifyDecisionHelper.DBLogic.Albums;
 using SpotifyDecisionHelper.DBLogic.Artists;
 using SpotifyDecisionHelper.DBLogic.Tracks;
@@ -10,15 +8,13 @@ namespace SpotifyDecisionHelper.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
     private readonly IArtistsManager _artistsManager;
     private readonly IAlbumsManager _albumsManager;
     private readonly ITracksManager _tracksManager;
     private SpotifyClient? _spotify;
     
-    public HomeController(ILogger<HomeController> logger, IArtistsManager artistsManager, IAlbumsManager albumsManager, ITracksManager tracksManager)
+    public HomeController(IArtistsManager artistsManager, IAlbumsManager albumsManager, ITracksManager tracksManager)
     {
-        _logger = logger;
         _artistsManager = artistsManager;
         _albumsManager = albumsManager;
         _tracksManager = tracksManager;
@@ -29,11 +25,6 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-    
     public IActionResult Auth()
     {
         if (_spotify != null) return Redirect("https://localhost:7142/");
@@ -62,7 +53,6 @@ public class HomeController : Controller
                 builder.Configuration["Spotify:ClientSecret"], 
                 code, 
                 new Uri("https://localhost:7142/Home/Callback"))
-            
         );
         response.Wait();
         _spotify = new SpotifyClient(response.Result.AccessToken);
@@ -82,36 +72,9 @@ public class HomeController : Controller
         await foreach (var track in _spotify.Paginate(tracks))
         {
             var fullTrack = track.Track;
-            await _artistsManager.FindOrCreate(new CreateArtistRequest
-            {
-                UserId = userId, 
-                ArtistId = fullTrack.Artists[0].Id,
-                Name = fullTrack.Artists[0].Name,
-                Rating = 0
-            });
-            await _albumsManager.FindOrCreate(new CreateAlbumRequest()
-            {
-                UserId = userId, 
-                AlbumId = fullTrack.Album.Id,
-                Name = fullTrack.Album.Name,
-                Rating = 0,
-                ArtistId = fullTrack.Artists[0].Id,
-            });
-            await _tracksManager.FindOrCreate(new CreateTrackRequest()
-            {
-                UserId = userId, 
-                TrackId = fullTrack.Id,
-                Name = fullTrack.Name,
-                Rating = 0,
-                AlbumId = fullTrack.Album.Id
-            });
-            
+            await _artistsManager.Add(userId, fullTrack.Artists[0].Id);
+            await _albumsManager.Add(userId, fullTrack.Album.Id, fullTrack.Artists[0].Id);
+            await _tracksManager.Add(userId, fullTrack.Id, fullTrack.Album.Id);
         }
-    }
-    
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
