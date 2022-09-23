@@ -1,12 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
+using SpotifyDecisionHelper.DB.Models;
+using SpotifyDecisionHelper.DBLogic.Tracks;
 
 namespace SpotifyDecisionHelper.Controllers;
 
 public class StatsController : Controller
 {
-    // GET
-    public IActionResult Index()
+    private readonly ITracksManager _tracksManager;
+
+    public StatsController(ITracksManager tracksManager)
     {
-        return View();
+        _tracksManager = tracksManager;
     }
+
+   /* public IActionResult Tracks(int? pageNumber)
+    {
+        
+        var tracks = 
+        return View(List<Track>);
+    }*/
 }

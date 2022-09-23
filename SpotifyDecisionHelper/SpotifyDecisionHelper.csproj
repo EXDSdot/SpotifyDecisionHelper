@@ -21,7 +21,6 @@
 
     <ItemGroup>
       <Folder Include="Migrations" />
-      <Folder Include="Views\Stats" />
     </ItemGroup>
 
 </Project>
