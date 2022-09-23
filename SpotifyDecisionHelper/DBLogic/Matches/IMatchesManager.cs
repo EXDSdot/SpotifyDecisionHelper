@@ -8,5 +8,5 @@ public interface IMatchesManager
     bool DoesExist(string userId, Track track1, Track track2);
 
     Task AddMatch(string userId, int bracketId, Track track1, Track track2);
-    (string, string)? GetNextMatch(string userId, int bracketId);
+    Match? GetNextMatch(string userId, int bracketId);
 }

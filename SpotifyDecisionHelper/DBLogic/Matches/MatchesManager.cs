@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SpotifyDecisionHelper.DB;
 using SpotifyDecisionHelper.DB.Models;
 
@@ -36,9 +37,11 @@ public class MatchesManager : IMatchesManager
         _context.Matches.Add(match);
         await _context.SaveChangesAsync();
     }
-    public (string, string)? GetNextMatch(string userId, int bracketId)
+    public Match? GetNextMatch(string userId, int bracketId)
     {
-        var match = _context.Matches.FirstOrDefault(m => m.UserId == userId && m.Result == 0);
-        return (match != null ? (match.Tracks.First().TrackId, match.Tracks.Last().TrackId) : null);
+        var match = _context.Matches
+            .Include(m => m.Tracks)
+            .FirstOrDefault(m => m.UserId == userId && m.Result == 0);
+        return match;
     }
 }

@@ -1,7 +1,31 @@
-﻿@{
+﻿@model SpotifyDecisionHelper.DB.Models.Match
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    
+    @if ((bool)(ViewData["MatchSent"] ?? false))
+    {
+        var arr = Model.Tracks.ToArray();
+        var track1 = arr[0];
+        var track2 = arr[1];
+        <iframe style="border-radius:12px"
+                src="https://open.spotify.com/embed/track/@Html.Raw(track1.TrackId)"
+                width="50%" height="250" frameBorder="0" allowfullscreen=""
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+        </iframe>
+        <h1>vs</h1>
+        <iframe style="border-radius:12px"
+                src="https://open.spotify.com/embed/track/@Html.Raw(track2.TrackId)"
+                width="50%" height="250" frameBorder="0" allowfullscreen=""
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+        </iframe>
+    }
+    else
+    {
+        <h3>Пара не найдена</h3>
+    }
 </div>
+
+<script src="https://open.spotify.com/embed-podcast/iframe-api/v1" async></script>
