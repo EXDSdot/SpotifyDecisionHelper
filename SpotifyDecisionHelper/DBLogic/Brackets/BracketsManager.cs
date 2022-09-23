@@ -20,7 +20,8 @@ public class BracketsManager : IBracketsManager
     
     public int CurrentBracket(string userId)
     {
-        return _context.Brackets.Max(x => (int?)x.BracketId) ?? 0;
+        return _context.Brackets.Where(x => x.UserId == userId)
+            .Max(x => (int?)x.BracketId) ?? 0;
     }
 
     public async Task AddNewBracket(string userId)
@@ -32,16 +33,22 @@ public class BracketsManager : IBracketsManager
         };
         _context.Brackets.Add(bracket);
 
-        var maxPairs = _context.Tracks
-            .Count(t => t.UserId == userId)/2;
         var tracks1 = _context.Tracks
             .Where(t => t.UserId == userId)
             .OrderBy(t => t.Rating)
-            .Take(maxPairs).ToList();
+            .ToList()
+            .Select((t,i) => new { Track = t, Index = i })
+            .Where(ti => (ti.Index+1)%2 == 0 )
+            .Select(ti => ti.Track)
+            .ToList();
         var tracks2 = _context.Tracks
             .Where(t => t.UserId == userId)
             .OrderBy(t => t.Rating)
-            .Skip(maxPairs).ToList();
+            .ToList()
+            .Select((t,i) => new { Track = t, Index = i })
+            .Where(ti =>  ti.Index%2 == 0 )
+            .Select(ti => ti.Track)
+            .ToList();
         
         foreach (var track1 in tracks1)
         {

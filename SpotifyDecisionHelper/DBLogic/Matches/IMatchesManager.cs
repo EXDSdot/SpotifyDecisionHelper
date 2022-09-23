@@ -9,4 +9,5 @@ public interface IMatchesManager
 
     Task AddMatch(string userId, int bracketId, Track track1, Track track2);
     Match? GetNextMatch(string userId, int bracketId);
+    void ApplyResult(string userId, int matchId, int result);
 }

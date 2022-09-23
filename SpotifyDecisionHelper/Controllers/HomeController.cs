@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SpotifyAPI.Web;
+using SpotifyDecisionHelper.DB.Models;
 using SpotifyDecisionHelper.DBLogic.Albums;
 using SpotifyDecisionHelper.DBLogic.Artists;
 using SpotifyDecisionHelper.DBLogic.Brackets;
@@ -26,26 +27,26 @@ public class HomeController : Controller
         _matchesManager = matchesManager;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-        var token = HttpContext.Session.GetString("_AToken");
-        if (token == null)
-        {
-            ViewData["MatchSent"] = false;
-            return View();
-        }
-
-        _spotify = new SpotifyClient(token);
-        var userId = (await _spotify.UserProfile.Current()).Id;
+        var userId = HttpContext.Session.GetString("_UserId");
+        if (userId == null) View();
+        
         var bracketId = _bracketsManager.CurrentBracket(userId);
         var match = _matchesManager.GetNextMatch(userId, bracketId);
-        if (match != null)
-        {
-            Console.WriteLine(match.Tracks);
-        }
 
         ViewData["MatchSent"] = match != null;
+        
         return View(match);
+    }
+    
+    public IActionResult Choice([FromQuery] int matchId, [FromQuery] int choice)
+    {
+        var userId = HttpContext.Session.GetString("_UserId");
+        if (userId == null) return RedirectToAction("Index");
+
+        _matchesManager.ApplyResult(userId, matchId, choice);
+        return RedirectToAction("Index");
     }
 
     public IActionResult Auth()
@@ -80,14 +81,15 @@ public class HomeController : Controller
         
         HttpContext.Session.SetString("_AToken", response.Result.AccessToken);
         HttpContext.Session.SetString("_RToken", response.Result.RefreshToken);
+        HttpContext.Session.SetString("_UserId", (await _spotify.UserProfile.Current()).Id);
 
-        return Redirect("https://localhost:7142/");
+        return RedirectToAction("Index");
     }
 
     public async Task<IActionResult> Load()
     {
         var token = HttpContext.Session.GetString("_AToken");
-        if (token == null) return Redirect("https://localhost:7142/");
+        if (token == null) return RedirectToAction("Index");
 
         _spotify = new SpotifyClient(token);
         var userId = (await _spotify.UserProfile.Current()).Id;
@@ -100,20 +102,16 @@ public class HomeController : Controller
             await _albumsManager.Add(userId, fullTrack.Album.Id, fullTrack.Artists[0].Id);
             await _tracksManager.Add(userId, fullTrack.Id, fullTrack.Album.Id);
         }
-
-        await _bracketsManager.AddNewBracket(userId);
-        return Redirect("https://localhost:7142/");
+        
+        return RedirectToAction("Index");
     }
 
     public async Task<IActionResult> NewBracket()
     {
-        var token = HttpContext.Session.GetString("_AToken");
-        if (token == null) return Redirect("https://localhost:7142/");
-
-        _spotify = new SpotifyClient(token);
-
-        var userId = (await _spotify.UserProfile.Current()).Id;
+        var userId = HttpContext.Session.GetString("_UserId");
+        if (userId == null) return RedirectToAction("Index");
+        
         await _bracketsManager.AddNewBracket(userId);
-        return Redirect("https://localhost:7142/");
+        return RedirectToAction("Index");
     }
 }
